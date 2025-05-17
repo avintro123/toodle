@@ -20,40 +20,45 @@ export function BoardProvider({ children }) {
 
     // Color palette
     const colors = [
-        "#FEE2E2", // light red
-        "#FEF9C3", // light yellow
+        "#FEE2E2", //light red
+        "#FEF9C3", //light yellow
         "#DCFCE7", // light green
         "#E0E7FF", // light blue
-        "#F3E8FF", // light purple
+        "#F3E8FF", //light purple
         "#FFE4E6", // pink
         "#CCFBF1", // teal
     ];
 
+    // Func to get a random color for pallate  
     function getRandomColor() {
         return colors[Math.floor(Math.random() * colors.length)];
     }
 
-    // ✅ Accept title and optional color
+    // title and color selection
     const createBoard = (title, color = null) => {
         const newBoard = {
             id: uuidv4(),
             title,
-            color: color || getRandomColor(), // use provided color or fallback
+            color: color || getRandomColor(),
             posts: [],
         };
         setBoards((prev) => [...prev, newBoard]);
     };
 
+    // Update the board
     function updateBoard(id, title) {
         setBoards((b) =>
             b.map((board) => (board.id === id ? { ...board, title } : board))
         );
     }
 
+    // Delete the board
     function deleteBoard(id) {
         setBoards((b) => b.filter((board) => board.id !== id));
     }
 
+    // Post inside a board
+    // Create a post
     function createPost(boardId, title, content, image = null) {
         setBoards((prevBoards) =>
             prevBoards.map((board) =>
@@ -67,7 +72,7 @@ export function BoardProvider({ children }) {
                                 title,
                                 content,
                                 likes: 0,
-                                image, // store the image
+                                image,
                             },
                         ],
                     }
@@ -76,7 +81,7 @@ export function BoardProvider({ children }) {
         );
     }
 
-
+    // Update a post
     function updatePost(boardId, postId, title, content) {
         setBoards((b) =>
             b.map((board) =>
@@ -89,9 +94,10 @@ export function BoardProvider({ children }) {
                     }
                     : board
             )
-        );
+        )
     }
 
+    // Delete a post
     function deletePost(boardId, postId) {
         setBoards((b) =>
             b.map((board) =>
@@ -105,6 +111,7 @@ export function BoardProvider({ children }) {
         );
     }
 
+    // Like a post
     function likePost(boardId, postId) {
         setBoards((b) =>
             b.map((board) =>
@@ -121,7 +128,7 @@ export function BoardProvider({ children }) {
             )
         );
     }
-
+    // Context provider for layout.js to be applicable for whole app
     return (
         <BoardContext.Provider
             value={{
@@ -139,7 +146,6 @@ export function BoardProvider({ children }) {
         </BoardContext.Provider>
     );
 }
-
 export function useBoards() {
     return useContext(BoardContext);
 }

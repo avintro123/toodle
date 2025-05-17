@@ -7,6 +7,7 @@ import { Plus } from "lucide-react";
 import CreateBoardModal from "../components/CreateBoardModal"; // Step 3
 import { useBoards } from "./context/BoardContext";
 export default function HomePage() {
+
   const { boards, createBoard, deleteBoard, updateBoard } = useBoards();
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -24,6 +25,7 @@ export default function HomePage() {
           <Image src="/Frame 2796.png" alt="Logo" width={80} height={80} />
         </div>
 
+        {/* Search bar top right */}
         <div className="flex justify-end items-center gap-2 mb-6 mt-6">
           <input
             type="text"
@@ -32,6 +34,7 @@ export default function HomePage() {
             onChange={(e) => setSearch(e.target.value)}
             className="border rounded px-3 py-2 w-72"
           />
+
           <button
             onClick={() => setShowModal(true)}
             className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-full"
@@ -41,12 +44,16 @@ export default function HomePage() {
           </button>
         </div>
 
+        {/* Board Cards */}
+
         <BoardList
           boards={filteredBoards}
           deleteBoard={deleteBoard}
           updateBoard={updateBoard}
         />
 
+
+        {/* Pop up create board modal */}
         <CreateBoardModal
           isOpen={showModal}
           onClose={() => setShowModal(false)}

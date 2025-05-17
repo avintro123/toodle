@@ -2,16 +2,23 @@
 
 import React, { useState, use } from "react";
 import { useBoards } from "../../context/BoardContext";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+// import { useRouter } from "next/navigation" 
+import Link from "next/link"
 import Image from "next/image";
 
-// SVG Icons
-const BookmarkIcon = () => (
-    <svg className="w-6 h-6 text-gray-700 hover:text-gray-900 cursor-pointer" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+// icon for bookmark
+const BookmarkIcon = ({ filled = false }) => (
+    <svg
+        className={`w-6 h-6 cursor-pointer ${filled ? "text-black" : "text-gray-500 hover:text-black"}`}
+        fill={filled ? "currentColor" : "none"}
+        stroke="currentColor"
+        strokeWidth={2}
+        viewBox="0 0 24 24"
+    >
         <path strokeLinecap="round" strokeLinejoin="round" d="M5 5v14l7-7 7 7V5a2 2 0 00-2-2H7a2 2 0 00-2 2z" />
     </svg>
 );
+
 
 const SearchIcon = () => (
     <svg className="w-6 h-6 text-gray-700 hover:text-gray-900 cursor-pointer" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -34,13 +41,12 @@ const DeleteIcon = () => (
 
 export default function BoardPage({ params }) {
     const { id } = use(params);
-    const { boards, createPost, updatePost, deletePost, likePost } = useBoards();
+    const { boards, createPost, updatePost, deletePost, likePost } = useBoards()
 
     const board = boards.find((b) => b.id === id);
     const [search, setSearch] = useState("");
     const [showSearch, setShowSearch] = useState(false);
     const [showCreateForm, setShowCreateForm] = useState(false);
-
     const [newPostTitle, setNewPostTitle] = useState("");
     const [newPostContent, setNewPostContent] = useState("");
     const [imageFile, setImageFile] = useState(null);
@@ -49,39 +55,58 @@ export default function BoardPage({ params }) {
     const [editingPostId, setEditingPostId] = useState(null);
     const [editTitle, setEditTitle] = useState("");
     const [editContent, setEditContent] = useState("");
+    const [bookmarkedPosts, setBookmarkedPosts] = useState(new Set());
 
     if (!board) return <p className="p-4">Board not found</p>;
-
     const filteredPosts = board.posts.filter((post) =>
         post.title.toLowerCase().includes(search.toLowerCase())
-    );
+    )
+
+    function toggleBookmark(postId) {
+        setBookmarkedPosts(prev => {
+            const updated = new Set(prev);
+            if (updated.has(postId)) {
+                updated.delete(postId);
+            } else {
+                updated.add(postId)
+            }
+            return updated;
+        })
+    }
 
     function handleCreatePost() {
         if (!newPostTitle.trim()) return alert("Enter post title");
 
         createPost(id, newPostTitle.trim(), newPostContent.trim(), imagePreview);
-
         setNewPostTitle("");
-        setNewPostContent("");
-        setImageFile(null);
+        setNewPostContent("")
+        setImageFile(null)
         setImagePreview(null);
         setShowCreateForm(false);
     }
 
+    // Generate a random pastel background color
+    function getRandomColor() {
+        const hue = Math.floor(Math.random() * 360);
+        return `hsl(${hue}, 70%, 85%)`;  // Light pastel-like color
+    }
+
+
     function startEditing(post) {
         setEditingPostId(post.id);
-        setEditTitle(post.title);
+        setEditTitle(post.title)
         setEditContent(post.content);
     }
 
     function saveEdit() {
         updatePost(id, editingPostId, editTitle.trim(), editContent.trim());
-        setEditingPostId(null);
+        setEditingPostId(null)
     }
 
     function cancelEdit() {
-        setEditingPostId(null);
+        setEditingPostId(null)
     }
+
 
     return (
         <main className="max-w-3xl mx-auto p-4">
@@ -99,7 +124,7 @@ export default function BoardPage({ params }) {
                 </div>
             </div>
 
-            {/* Search */}
+            {/* Search area */}
             {showSearch && (
                 <div className="mb-4">
                     <input
@@ -113,10 +138,15 @@ export default function BoardPage({ params }) {
                 </div>
             )}
 
-            {/* Navigation */}
-            <Link href="/" className="inline-block text-blue-600 mb-4 hover:underline">
-                ← Back to Boards
+            {/* Navigate */}
+            <Link
+                href="/"
+                className="relative inline-flex items-center px-6 py-2 mb-4 text-sm font-bold text-white bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 hover:from-pink-500 hover:to-blue-500 focus:outline-none"
+            >
+                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 opacity-30 blur-sm animate-pulse"></span>
+                <span className="relative z-10">← Back to Boards</span>
             </Link>
+
 
             {/* Create Post Button */}
             <div className="flex justify-end mb-4">
@@ -129,7 +159,8 @@ export default function BoardPage({ params }) {
                 </button>
             </div>
 
-            {/* Create Post Modal */}
+
+            {/* Creating Modal for post */}
             {showCreateForm && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full space-y-4">
@@ -214,7 +245,7 @@ export default function BoardPage({ params }) {
                             </div>
                         </li>
                     ) : (
-                        <li key={post.id} className="border rounded p-4 bg-white flex flex-col">
+                        <li key={post.id} className="border rounded-2xl p-4 flex flex-col transition-transform transform hover:-translate-y-1 hover:shadow-lg" style={{ backgroundColor: getRandomColor() }}>
                             <div className="flex justify-between items-center mb-2">
                                 <h3 className="text-xl font-semibold">{post.title}</h3>
                                 <div className="flex gap-3 items-center">
@@ -232,6 +263,9 @@ export default function BoardPage({ params }) {
                                         aria-label="Delete post"
                                     >
                                         <DeleteIcon />
+                                    </button>
+                                    <button onClick={() => toggleBookmark(post.id)} title="Bookmark">
+                                        <BookmarkIcon filled={bookmarkedPosts.has(post.id)} />
                                     </button>
                                 </div>
                             </div>
