@@ -64,7 +64,7 @@ export default function BoardList({ boards, deleteBoard, updateBoard }) {
                                     <Save size={20} />
                                 </button>
 
-                                // Cut btn
+                                {/* // Cut btn */}
                                 <button
                                     onClick={cancelEdit}
                                     className="text-gray-600 hover:text-gray-800"
